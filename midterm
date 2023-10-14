@@ -252,14 +252,15 @@ void customizePattern() {
 
     while (o_or_x == 'o' || o_or_x == 'x') {
         int row, column;
-        cout << "請輸入要設定的細胞座標 (row column): ";
+        cout << "請輸入要設定的細胞座標 (row column皆從1開始): ";
         cin >> row >> column;
 
-        if (row >= 0 && row <= ROWS && column >= 0 && column <= COLUMNS) {
+        if (row >= 1 && row <= ROWS && column >= 1 && column <= COLUMNS) {
             position[0][row-1][column-1] = (o_or_x == 'o') ? 1 : 0;
         }
         else {
             cout << "無效的座標，請重試。" << endl;
+            continue;
         }
 
         for(int i = 0;i<ROWS;i++){
@@ -278,8 +279,8 @@ void show(){
         cout<<"第"<<time<<"秒"<<endl;
         for(int i = 0;i < ROWS;i++){
             for(int j = 0;j < COLUMNS;j++){
-                if(position[time][i][j]==0){  //cout<<position[time][i][j];
-                    cout<<" ";                //可更改cout來換空格的表示法
+                if(position[time][i][j]==0){
+                    cout<<"-";                //可更改cout來換空格的表示法
                 }
                 else{
                     cout<<"*";                //可更改cout來換細胞的表示法
@@ -288,7 +289,7 @@ void show(){
             }
             cout<<endl;
         }
-        _sleep(2*1000);
+        _sleep(0.5*1000);
         cout<<endl;
         //if(time==MAX_GENERATIONS-1){  (看要不要無限循環)
         //    time = 0;
@@ -303,3 +304,4 @@ int main()
     show();
     return 0;
 }
+
