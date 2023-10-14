@@ -29,7 +29,7 @@ int detect(int row,int column,int time){
             if(column==0){                               //第一列第一格與第十格要特殊判斷，這邊先處理左上角
                 for(int i = 0; i <=1 ; i++){
                     for(int j = 0; j<=1 ; j++){
-                        if(i==j){
+                        if(i==0||j==0){
                             continue;
                         }
                         else{
@@ -41,7 +41,7 @@ int detect(int row,int column,int time){
 
                 }
             }
-            else if (COLUMNS-1){                       //處理右上角
+            else if (column==COLUMNS-1){                       //處理右上角
                     for(int i = 0; i <=1 ; i++){
                         for(int j = COLUMNS-2; j<=COLUMNS-1 ; j++){
                             if(i==0&&j==COLUMNS-1){
@@ -268,7 +268,7 @@ void customizePattern() {
             }
             cout<<endl;
         }
-        cout << "還要繼續嗎 (o 設定細胞, x 刪除細胞, 其他展示)? ";
+        cout << "還要繼續嗎? (o 設定細胞, x 刪除細胞, 輸入其他則直接展示) ";
         cin >> o_or_x;
     }
 }
