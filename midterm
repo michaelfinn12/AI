@@ -11,15 +11,16 @@ int count = 0;
 /* function介紹
 detect:偵測周遭細胞存活數紀錄在count裡
 updateCellStatus:利用detect後的count判斷現在細胞應該是甚麼狀態
-customizePattern:初始化，使用者自定邊界
+customizePattern:初始化
+customizeMapSize:使用者自定邊界
 show:圖像化
 信號燈、方塊、桶子、滑翔機皆已成功
 */
 
 /*演算法介紹
-先用initial函式輸入初始細胞位置
+先用customizeMapSize函式設定地圖大小，接著利用customizePattern接受輸入初始細胞位置
 之後利用detect函式判斷當下該細胞附近有多少細胞
-得到結果後用status函式判斷下一秒該細胞的狀態並輸入進下一秒
+得到結果後用updateCellStatus函式判斷下一秒該細胞的狀態並輸入進下一秒
 最後利用show函式輸出圖像
 */
 int detect(int row,int column,int time){
