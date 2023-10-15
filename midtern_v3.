@@ -63,7 +63,6 @@ void customizeMapSize() {
         cout << "無效輸入，請輸入正整數：";
         cin >> MAX_GENERATIONS;
     }
-    //MAX_GENERATIONS++;
     position = vector<vector<vector<bool>>>(MAX_GENERATIONS, vector<vector<bool>>(ROWS, vector<bool>(COLUMNS, false)));
 }
 
