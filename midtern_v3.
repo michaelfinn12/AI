@@ -7,6 +7,7 @@ using namespace std;
 //0 = dead, 1=survive
 int ROWS, COLUMNS;
 int MAX_GENERATIONS;
+float seconds;
 vector<vector<vector<bool>>> position;//地圖，用3D向量(vector)存
 /* function介紹
 detect:偵測周遭細胞存活數紀錄在count裡
@@ -39,7 +40,7 @@ int detect(int row,int column,int time){
 }
 
 void customizeMapSize() {
-    cout << "請輸入地圖的行數: ";
+    cout << "請輸入地圖的列數(row): ";
     cin >> ROWS;
     while (cin.fail() || ROWS <= 0) {
         cin.clear();
@@ -47,7 +48,7 @@ void customizeMapSize() {
         cout << "無效輸入，請輸入正整數：";
         cin >> ROWS;
     }
-    cout << "請輸入地圖的列數: ";
+    cout << "請輸入地圖的行數(column): ";
     cin >> COLUMNS;
     while (cin.fail() || COLUMNS <= 0) {
         cin.clear();
@@ -63,6 +64,15 @@ void customizeMapSize() {
         cout << "無效輸入，請輸入正整數：";
         cin >> MAX_GENERATIONS;
     }
+    cout << "請輸入想要每一秒的間隔有多長(幾秒): ";
+    cin >> seconds;
+    while (cin.fail() || seconds <= 0) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "無效輸入，請輸入正實數：";
+        cin >> seconds;
+    }
+    //MAX_GENERATIONS++;
     position = vector<vector<vector<bool>>>(MAX_GENERATIONS, vector<vector<bool>>(ROWS, vector<bool>(COLUMNS, false)));
 }
 
@@ -94,7 +104,7 @@ void customizePattern() {
         cin >> modeChoice;
         if (modeChoice==1){
             int seed;
-            cout<<"請輸入隨機種子碼"<<endl;
+            cout<<"請輸入隨機種子碼: ";
             cin>>seed;
             srand(seed);
             for(int i = 0;i<ROWS;i++){
@@ -131,8 +141,9 @@ void customizePattern() {
             break;
         }
         else{
-            cout << "無效的模式，請重試。" << endl;
-            continue;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "無效輸入，請重新輸入。"<<endl;
         }
     }
 }
@@ -152,7 +163,10 @@ void show(){
             }
             cout<<endl;
         }
-        _sleep(1*1000);
+        _sleep(seconds*1000);
+        for(int i = 0;i<COLUMNS+5;i++){
+            cout<<"-";
+        }
         cout<<endl;
     }
 }
