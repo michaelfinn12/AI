@@ -1,0 +1,167 @@
+#include <iostream>
+#include <vector>
+#include <limits>
+#include <cstdlib>
+using namespace std;
+
+//0 = dead, 1=survive
+int ROWS, COLUMNS;
+int MAX_GENERATIONS;
+vector<vector<vector<bool>>> position;//地圖，用3D向量(vector)存
+/* function介紹
+detect:偵測周遭細胞存活數紀錄在count裡
+updateCellStatus:利用detect後的count判斷現在細胞應該是甚麼狀態
+customizePattern:初始化
+customizeMapSize:使用者自定邊界
+show:圖像化
+信號燈、方塊、桶子、滑翔機皆已成功
+*/
+
+/*演算法介紹
+先用customizeMapSize函式設定地圖大小，接著利用customizePattern接受輸入初始細胞位置
+之後利用detect函式判斷當下該細胞附近有多少細胞
+得到結果後用updateCellStatus函式判斷下一秒該細胞的狀態並輸入進下一秒
+最後利用show函式輸出圖像
+*/
+int detect(int row,int column,int time){
+    int count = 0;
+    for (int i = max(0, row - 1); i <= min(ROWS - 1, row + 1); i++) {  //max&min用來當作邊界偵測
+        for (int j = max(0, column - 1); j <= min(COLUMNS - 1, column + 1); j++) {
+            if (i == row && j == column) {
+                continue;  // 不包括當前细胞本身
+            }
+            if (position[time][i][j]) {
+                count++;
+            }
+        }
+    }
+    return count;
+}
+
+void customizeMapSize() {
+    cout << "請輸入地圖的行數: ";
+    cin >> ROWS;
+    while (cin.fail() || ROWS <= 0) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "無效輸入，請輸入正整數：";
+        cin >> ROWS;
+    }
+    cout << "請輸入地圖的列數: ";
+    cin >> COLUMNS;
+    while (cin.fail() || COLUMNS <= 0) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "無效輸入，請輸入正整數：";
+        cin >> COLUMNS;
+    }
+    cout << "請輸入想要觀察的總秒數: ";
+    cin >> MAX_GENERATIONS;
+    while (cin.fail() || MAX_GENERATIONS <= 0) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "無效輸入，請輸入正整數：";
+        cin >> MAX_GENERATIONS;
+    }
+    //MAX_GENERATIONS++;
+    position = vector<vector<vector<bool>>>(MAX_GENERATIONS, vector<vector<bool>>(ROWS, vector<bool>(COLUMNS, false)));
+}
+
+void updateCellStatus(int row,int column,int time){
+    if(time!=(MAX_GENERATIONS-1)){
+        if(position[time][row][column] == 0){          //當前細胞為死亡狀態時，當周圍有3個存活細胞時，該細胞變成存活狀態。
+            if(detect(row,column,time) == 3){
+                position[time+1][row][column] = 1;
+            }
+            else{
+                position[time+1][row][column] = 0;
+            }
+        }
+        else if(position[time][row][column] == 1){          //當前細胞為存活狀態時，當周圍的存活細胞低於2個或大於3個時，該細胞變成死亡狀態。
+            if(detect(row,column,time) < 2||detect(row,column,time) > 3){
+                position[time+1][row][column] = 0;
+            }
+            else{
+                position[time+1][row][column] = 1;
+            }
+        }
+    }
+}
+
+void customizePattern() {
+    while(1){
+        int modeChoice;
+        cout << "隨機輸入還是自訂輸入呢 (隨機輸入1，自訂輸入2): ";
+        cin >> modeChoice;
+        if (modeChoice==1){
+            int seed;
+            cout<<"請輸入隨機種子碼"<<endl;
+            cin>>seed;
+            srand(seed);
+            for(int i = 0;i<ROWS;i++){
+                for(int j = 0;j<COLUMNS;j++){
+                        position[0][i][j]=rand()%2;
+                }
+            }
+            break;
+        }
+        else if(modeChoice==2){
+            char o_or_x;
+            cout << "有要設定初始細胞狀態嗎? 請輸入o(新增)或x(刪除): ";
+            cin >> o_or_x;
+            while (o_or_x == 'o' || o_or_x == 'x') {
+                int row, column;
+                cout << "請輸入要設定的細胞座標 (row column皆從1開始): ";
+                cin >> row >> column;
+                if (row >= 1 && row <= ROWS && column >= 1 && column <= COLUMNS) {
+                    position[0][row-1][column-1] = (o_or_x == 'o') ? 1 : 0;
+                }
+                else {
+                    cout << "無效的座標，請重試。" << endl;
+                    continue;
+                }
+                for(int i = 0;i<ROWS;i++){
+                    for(int j = 0;j<COLUMNS;j++){
+                        cout<<position[0][i][j];
+                    }
+                    cout<<endl;
+                }
+                    cout << "還要繼續嗎? (o 設定細胞, x 刪除細胞, 輸入其他則直接展示) ";
+                cin >> o_or_x;
+            }
+            break;
+        }
+        else{
+            cout << "無效的模式，請重試。" << endl;
+            continue;
+        }
+    }
+}
+
+void show(){
+    for(int time = 0 ;time<MAX_GENERATIONS;time++){
+        cout<<"第"<<time+1<<"秒"<<endl;
+        for(int i = 0;i < ROWS;i++){
+            for(int j = 0;j < COLUMNS;j++){
+                if(position[time][i][j]==0){
+                    cout<<" ";                //可更改cout來換空格的表示法
+                }
+                else{
+                    cout<<"*";                //可更改cout來換細胞的表示法
+                }
+                updateCellStatus(i,j,time);
+            }
+            cout<<endl;
+        }
+        _sleep(1*1000);
+        cout<<endl;
+    }
+}
+
+int main()
+{
+    customizeMapSize();
+    customizePattern();
+    show();
+    return 0;
+}
