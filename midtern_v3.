@@ -2,6 +2,8 @@
 #include <vector>
 #include <limits>
 #include <cstdlib>
+#include <thread>
+#include <chrono>
 using namespace std;
 
 //0 = dead, 1=survive
@@ -113,36 +115,42 @@ void customizePattern() {
             }
             break;
         }
-        else if(modeChoice==2){
-            char o_or_x;
-            cout << "有要設定初始細胞狀態嗎? 請輸入o(新增)或x(刪除): ";
-            cin >> o_or_x;
-            while (o_or_x == 'o' || o_or_x == 'x') {
-                int row, column;
-                cout << "請輸入要設定的細胞座標 (row column皆從1開始): ";
-                cin >> row >> column;
-                if (row >= 1 && row <= ROWS && column >= 1 && column <= COLUMNS) {
-                    position[0][row-1][column-1] = (o_or_x == 'o') ? 1 : 0;
+        else if (modeChoice == 2) {
+            while (1) {
+                char o_or_x;
+                cout << "有要設定初始細胞狀態嗎? 請輸入o(新增)或x(刪除)，或輸入R(展示): ";
+                cin >> o_or_x;
+                if (o_or_x == 'o' || o_or_x == 'x') {
+                    int row, column;
+                    cout << "請輸入要設定的細胞座標 (row column皆從1開始): ";
+                    cin >> row >> column;
+                    if (row >= 1 && row <= ROWS && column >= 1 && column <= COLUMNS) {
+                        position[0][row - 1][column - 1] = (o_or_x == 'o') ? 1 : 0;
+                    }
+                    else {
+                        cout << "無效的座標，請重試。" << endl;
+                        continue;
+                    }
+                    for (int i = 0; i < ROWS; i++) {
+                        for (int j = 0; j < COLUMNS; j++) {
+                            cout << position[0][i][j];
+                        }
+                        cout << endl;
+                    }
+                }
+                else if (o_or_x == 'R' || o_or_x == 'r') {
+                    break;
                 }
                 else {
-                    cout << "無效的座標，請重試。" << endl;
-                    continue;
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    cout << "無效輸入，請重新輸入。" << endl;
                 }
-                for(int i = 0;i<ROWS;i++){
-                    for(int j = 0;j<COLUMNS;j++){
-                        cout<<position[0][i][j];
-                    }
-                    cout<<endl;
-                }
-                    cout << "還要繼續嗎? (o 設定細胞, x 刪除細胞, 輸入其他則直接展示) ";
-                cin >> o_or_x;
             }
             break;
         }
-        else{
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            cout << "無效輸入，請重新輸入。"<<endl;
+        else {
+            cout << "無效的模式，請重試。" << endl;
         }
     }
 }
@@ -162,7 +170,8 @@ void show(){
             }
             cout<<endl;
         }
-        _sleep(seconds*1000);
+        chrono::seconds sleep_duration(1);
+        this_thread::sleep_for(sleep_duration*seconds);
         for(int i = 0;i<COLUMNS+5;i++){
             cout<<"-";
         }
@@ -177,3 +186,4 @@ int main()
     show();
     return 0;
 }
+
