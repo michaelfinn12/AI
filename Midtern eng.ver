@@ -1,0 +1,174 @@
+#include <iostream>
+#include <vector>
+#include <limits>
+#include <cstdlib>
+#include <thread>
+#include <chrono>
+using namespace std;
+
+//0 = dead, 1=survive
+int ROWS, COLUMNS;
+int MAX_GENERATIONS;
+float seconds;
+vector<vector<vector<bool>>> position;
+
+int detect(int row,int column,int time){
+    int count = 0;
+    for (int i = max(0, row - 1); i <= min(ROWS - 1, row + 1); i++) {
+        for (int j = max(0, column - 1); j <= min(COLUMNS - 1, column + 1); j++) {
+            if (i == row && j == column) {
+                continue;
+            }
+            if (position[time][i][j]) {
+                count++;
+            }
+        }
+    }
+    return count;
+}
+
+void customizeMapSize() {
+    cout << "Total rows: ";
+    cin >> ROWS;
+    while (cin.fail() || ROWS <= 0) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Invalid input,please retry:";
+        cin >> ROWS;
+    }
+    cout << "Total columns: ";
+    cin >> COLUMNS;
+    while (cin.fail() || COLUMNS <= 0) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Invalid input,please retry:";
+        cin >> COLUMNS;
+    }
+    cout << "Total seconds: ";
+    cin >> MAX_GENERATIONS;
+    while (cin.fail() || MAX_GENERATIONS <= 0) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Invalid input,please retry:";
+        cin >> MAX_GENERATIONS;
+    }
+    cout << "map change time: ";
+    cin >> seconds;
+    while (cin.fail() || seconds <= 0) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Invalid input,please retry:";
+        cin >> seconds;
+    }
+    position = vector<vector<vector<bool>>>(MAX_GENERATIONS, vector<vector<bool>>(ROWS, vector<bool>(COLUMNS, false)));
+}
+
+void updateCellStatus(int row,int column,int time){
+    if(time!=(MAX_GENERATIONS-1)){
+        if(position[time][row][column] == 0){
+            if(detect(row,column,time) == 3){
+                position[time+1][row][column] = 1;
+            }
+            else{
+                position[time+1][row][column] = 0;
+            }
+        }
+        else if(position[time][row][column] == 1){
+            if(detect(row,column,time) < 2||detect(row,column,time) > 3){
+                position[time+1][row][column] = 0;
+            }
+            else{
+                position[time+1][row][column] = 1;
+            }
+        }
+    }
+}
+
+void customizePattern() {
+    while(1){
+        int modeChoice;
+        cout << "random input or customize input (random1，customize2): ";
+        cin >> modeChoice;
+        if (modeChoice==1){
+            int seed;
+            cout<<"seed: ";
+            cin>>seed;
+            srand(seed);
+            for(int i = 0;i<ROWS;i++){
+                for(int j = 0;j<COLUMNS;j++){
+                        position[0][i][j]=rand()%2;
+                }
+            }
+            break;
+        }
+        else if (modeChoice == 2) {
+            while (1) {
+                char o_or_x;
+                cout << "o(add) x(delete) R(run process): ";
+                cin >> o_or_x;
+                if (o_or_x == 'o' || o_or_x == 'x') {
+                    int row, column;
+                    cout << "coordinate(row and column)(from 1 to start): ";
+                    cin >> row >> column;
+                    if (row >= 1 && row <= ROWS && column >= 1 && column <= COLUMNS) {
+                        position[0][row - 1][column - 1] = (o_or_x == 'o') ? 1 : 0;
+                    }
+                    else {
+                        cout << "Invalid input,please retry." << endl;
+                        continue;
+                    }
+                    for (int i = 0; i < ROWS; i++) {
+                        for (int j = 0; j < COLUMNS; j++) {
+                            cout << position[0][i][j];
+                        }
+                        cout << endl;
+                    }
+                }
+                else if (o_or_x == 'R' || o_or_x == 'r') {
+                    break;
+                }
+                else {
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    cout << "Invalid input,please retry." << endl;
+                }
+            }
+            break;
+        }
+        else {
+            cout << "Invalid input,please retry." << endl;
+        }
+    }
+}
+
+void show(){
+    for(int time = 0 ;time<MAX_GENERATIONS;time++){
+        cout<<"time:"<<time+1<<endl;
+        for(int i = 0;i < ROWS;i++){
+            for(int j = 0;j < COLUMNS;j++){
+                if(position[time][i][j]==0){
+                    cout<<" ";
+                }
+                else{
+                    cout<<"*";
+                }
+                updateCellStatus(i,j,time);
+            }
+            cout<<endl;
+        }
+        chrono::seconds sleep_duration(1);
+        this_thread::sleep_for(sleep_duration*seconds);
+        for(int i = 0;i<COLUMNS+5;i++){
+            cout<<"-";
+        }
+        cout<<endl;
+    }
+}
+
+int main()
+{
+    customizeMapSize();
+    customizePattern();
+    show();
+    return 0;
+}
